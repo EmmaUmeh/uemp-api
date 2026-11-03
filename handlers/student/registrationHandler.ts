@@ -21,10 +21,8 @@ export default async function registrationHandler(
   req: AuthenticatedRequest,
   res: Response,
 ): Promise<void> {
-  const { courseId, academicPeriodId } = req.body as {
-    courseId?: string;
-    academicPeriodId?: string;
-  };
+  const { courseId, academicPeriodId } = req.body;
+  
   if (!courseId || !academicPeriodId) {
     res
       .status(HTTPStatus.BAD_REQUEST)

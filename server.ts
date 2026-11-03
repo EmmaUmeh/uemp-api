@@ -49,13 +49,13 @@ app.use(
   }),
 );
 
-app.get('/api/health', (_req, res) => {
+app.get('/v1/health', (_req, res) => {
   res.status(HTTPStatus.OK).json({
     status: 'ok',
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
   });
 });
-app.use('/api', apiRoutes);
+app.use('/v1', apiRoutes);
 app.use((_req, _res, next) => {
   next(new HTTPException(HTTPStatus.NOT_FOUND, 'Route not found.'));
 });

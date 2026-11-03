@@ -34,7 +34,7 @@ export async function createDepartmentUserHandler(
   const {
     firstName,
     lastName,
-    email,
+    emailAddress,
     password,
     role,
     faculty,
@@ -45,7 +45,7 @@ export async function createDepartmentUserHandler(
   } = req.body as {
     firstName?: string;
     lastName?: string;
-    email?: string;
+    emailAddress?: string;
     password?: string;
     role?: UserRole;
     faculty?: string;
@@ -54,10 +54,10 @@ export async function createDepartmentUserHandler(
     matricNumber?: string;
     staffNumber?: string;
   };
-  if (!firstName || !lastName || !email || !password || !role) {
+  if (!firstName || !lastName || !emailAddress || !password || !role) {
     res
       .status(HTTPStatus.BAD_REQUEST)
-      .json({ message: 'First name, last name, email, password, and role are required.' });
+      .json({ message: 'First name, last name, emailAddress, password, and role are required.' });
     return;
   }
   if (!departmentRoles.includes(role)) {
@@ -88,7 +88,7 @@ export async function createDepartmentUserHandler(
   const user = await UserModel.create({
     firstName,
     lastName,
-    email,
+    emailAddress,
     password: await hashPassword(password),
     role,
     department: req.user.department,

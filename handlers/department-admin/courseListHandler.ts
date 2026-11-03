@@ -15,7 +15,7 @@ export default async function courseListHandler(
   }
   const courses = await CourseModel.find({ department: req.user.department }).populate(
     'program lecturers',
-    'name code firstName lastName email',
+    'name code firstName lastName emailAddress',
   );
   res.json({ courses });
 }

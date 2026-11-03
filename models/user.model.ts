@@ -1,10 +1,19 @@
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { ACADEMIC_LEVELS, AcademicLevel, UserRole } from './enums';
 
+export const SENSITIVE_FIELDS = [
+  'password',
+  '__v',
+  'createdAt',
+  'updatedAt',
+  'createdBy',
+  'updatedBy',
+] as const;
+
 export interface User {
   firstName: string;
   lastName: string;
-  email: string;
+  emailAddress: string;
   password: string;
   role: UserRole;
   faculty?: Types.ObjectId;
@@ -31,7 +40,7 @@ const userSchema = new mongoose.Schema<User>(
       required: true,
       trim: true,
     },
-    email: {
+    emailAddress: {
       type: String,
       required: true,
       unique: true,
@@ -101,7 +110,10 @@ userSchema.index({ program: 1, level: 1, role: 1 });
 
 userSchema.set('toJSON', {
   transform(_doc, value) {
-    Reflect.deleteProperty(value, 'password');
+    for (const field of SENSITIVE_FIELDS) {
+      Reflect.deleteProperty(value, field);
+    }
+
     return value;
   },
 });

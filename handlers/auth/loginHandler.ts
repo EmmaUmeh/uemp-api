@@ -9,7 +9,9 @@ import { createAuthenticatedSession } from '../../services/session.service';
 const loginHandler: RequestApiHandler = async (req: Request, res) => {
   const { emailAddress, password } = req.body;
 
-  const user = await UserModel.findOne({ email: emailAddress.toLowerCase() }).select('+password');
+  const user = await UserModel.findOne({ emailAddress: emailAddress.toLowerCase() }).select(
+    '+password',
+  );
 
   if (!user) {
     throw new HTTPException(HTTPStatus.UNAUTHORIZED, 'Invalid email or password.');

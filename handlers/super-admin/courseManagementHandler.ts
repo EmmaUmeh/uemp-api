@@ -9,7 +9,7 @@ import { validateCourseAssignment } from '../../services/courseValidation';
 export async function listCoursesHandler(_req: AuthenticatedRequest, res: Response): Promise<void> {
   const courses = await CourseModel.find().populate(
     'department program lecturers',
-    'name code firstName lastName email',
+    'name code firstName lastName emailAddress',
   );
   res.json({ courses });
 }

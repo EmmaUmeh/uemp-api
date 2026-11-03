@@ -10,7 +10,9 @@
     "format": "prettier --write \"**/*.ts\" \"*.json\" \"README.md\"",
     "format:check": "prettier --check \"**/*.ts\" \"*.json\" \"README.md\"",
     "start": "node dist/server.js",
-    "dev": "tsx watch server.ts"
+    "dev": "tsx watch server.ts",
+    "seed:test-users": "tsx scripts/create_user.ts",
+    "migrate:users-email": "tsx scripts/migrate_user_email.ts"
   },
   "engines": {
     "node": ">=20"
