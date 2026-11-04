@@ -1,33 +1,5 @@
 # University Portal API
 
-A TypeScript Node.js/Express monolith using MongoDB and Mongoose. The only server entry point is `server.ts`. Feature handlers are separated by user role under `handlers/`.
-
-```text
-handlers/
-  auth/
-  student/
-  lecturer/
-  department-admin/
-  super-admin/
-  shared/
-validators/
-  auth/
-middleware/
-models/
-  user.model.ts
-  course.model.ts
-  registration.model.ts
-  result.model.ts
-  activity-log.model.ts
-  academic.model.ts
-  enums.ts
-routes/
-services/
-types/
-utils/
-server.ts
-```
-
 ## API endpoints
 
 Base URL: `http://localhost:5000/v1`. Except for health and login, endpoints require the session cookie created by login. Send the cookie on subsequent requests; browser clients should use `credentials: "include"`. API errors are returned through the common error handler.
@@ -57,16 +29,3 @@ Base URL: `http://localhost:5000/v1`. Except for health and login, endpoints req
 | POST   | `/results/:id/submit`                                     | Lecturer who manages the result                                                         | Submit a result for review                                |
 | POST   | `/results/:id/review`                                     | Department admin for the department or super admin                                      | Approve or return a submitted result                      |
 | GET    | `/activities`                                             | Super admin                                                                             | View activity records                                     |
-
-Use the exact resource names and parameter values shown. Route authorization is enforced by the API; hiding controls in a client does not grant access.
-
-### Login example
-
-```http
-POST /v1/auth/login
-Content-Type: application/json
-
-{"emailAddress":"test.student@example.com","password":"your-test-password"}
-```
-
-The same login route is used for student, lecturer, department-admin, and super-admin accounts. The stored role determines which protected operations are available.
