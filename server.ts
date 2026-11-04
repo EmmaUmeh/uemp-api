@@ -21,7 +21,7 @@ const app = express();
 
 const PORT = Number(process.env.PORT);
 const DATABASE_URL = process.env.MONGODB_URI as string;
-const SESSION_SECRET = process.env.SESSION_SECRET;
+const SESSION_SECRET = process.env.SESSION_SECRET as string;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 
