@@ -12,34 +12,22 @@ import { errorHandler } from './utils/error-handler.util';
 import logger from './utils/logger.utils';
 import { HTTPStatus } from './utils/http.utils';
 import HTTPException from './utils/error.utils';
+import dotenv from "dotenv"
+
+dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
-const mongoUri = process.env.MONGODB_URI;
-const sessionSecret = process.env.SESSION_SECRET;
-const mongoDnsServers = process.env.MONGODB_DNS_SERVERS?.split(',')
-  .map((server) => server.trim())
-  .filter(Boolean);
+const port = Number(process.env.PORT);
+const database_url = process.env.MONGODB_URI as string;
+const sessionSecret = process.env.SESSION_SECRET as string;
 
-if (!mongoUri || !sessionSecret) {
-  throw new Error('MONGODB_URI and SESSION_SECRET must be set in the environment.');
-}
-
-if (mongoDnsServers?.length) {
-  const invalidServer = mongoDnsServers.find((server) => isIP(server) === 0);
-
-  if (invalidServer) {
-    throw new Error(`Invalid DNS server address in MONGODB_DNS_SERVERS: ${invalidServer}`);
-  }
-
-  setServers(mongoDnsServers);
-}
 
 if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+    origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   }),
 );
@@ -51,7 +39,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: mongoUri,
+      mongoUrl: database_url,
       collectionName: 'sessions',
       ttl: 24 * 60 * 60,
     }),
@@ -64,13 +52,6 @@ app.use(
   }),
 );
 
-app.get('/v1/health', (_req, res) => {
-  const isDatabaseConnected = mongoose.connection.readyState === 1;
-  res.status(isDatabaseConnected ? HTTPStatus.OK : HTTPStatus.SERVICE_UNAVAILABLE).json({
-    status: isDatabaseConnected ? 'ok' : 'unavailable',
-    database: isDatabaseConnected ? 'connected' : 'disconnected',
-  });
-});
 app.use('/v1', apiRoutes);
 app.use((_req, _res, next) => {
   next(new HTTPException(HTTPStatus.NOT_FOUND, 'Route not found.'));
@@ -79,7 +60,7 @@ app.use((_req, _res, next) => {
 app.use(errorHandler);
 
 mongoose
-  .connect(mongoUri)
+  .connect(database_url)
   .then(() =>
     app.listen(port, () => logger.info(`University portal API listening on port ${port}`)),
   )
