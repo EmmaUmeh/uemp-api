@@ -24,9 +24,6 @@ const DATABASE_URL = process.env.MONGODB_URI as string;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-if (!DATABASE_URL || !SESSION_SECRET) {
-  throw new Error('MONGODB_URI and SESSION_SECRET are required.');
-}
 
 app.set('trust proxy', IS_PRODUCTION ? 1 : false);
 
