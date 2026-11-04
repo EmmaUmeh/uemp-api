@@ -1,29 +1,65 @@
-# University Portal API
+# University Education Management Portal API
 
-## API endpoints
+Backend API for managing university users, courses, registrations, academic records, and results.
 
-| Method | Endpoint                                                  | Authentication / allowed roles                                                          | Purpose                                                   |
-| ------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| GET    | `/health`                                                 | Public                                                                                  | Health status; returns `503` when MongoDB is disconnected |
-| POST   | `/auth/login`                                             | Public; rate-limited                                                                    | Sign in any account using `emailAddress` and `password`   |
-| GET    | `/auth/me`                                                | Any authenticated role                                                                  | Return the current user                                   |
-| POST   | `/auth/logout`                                            | Any authenticated role                                                                  | End the current session                                   |
-| GET    | `/academics/faculties`                                    | Any authenticated role                                                                  | List faculties (department-scoped where applicable)       |
-| GET    | `/academics/departments`                                  | Any authenticated role                                                                  | List departments                                          |
-| GET    | `/academics/programs`                                     | Any authenticated role                                                                  | List programs (department-scoped for department admins)   |
-| GET    | `/academics/periods`                                      | Any authenticated role                                                                  | List academic periods                                     |
-| POST   | `/academics/{faculties,departments,programs,periods}`     | Super admin; department admin for permitted department resources                        | Create academic records                                   |
-| PATCH  | `/academics/{faculties,departments,programs,periods}/:id` | Super admin; department admin for permitted department resources                        | Update an academic record                                 |
-| GET    | `/users`                                                  | Super admin; department admin sees own department                                       | List users                                                |
-| POST   | `/users`                                                  | Super admin; department admin can create students and lecturers in own department       | Create a user                                             |
-| PATCH  | `/users/:id`                                              | Super admin; department admin can update users in own department                        | Update a user                                             |
-| GET    | `/courses`                                                | Student, lecturer, department admin, or super admin; results are role/department scoped | List available/assigned courses                           |
-| POST   | `/courses`                                                | Super admin or department admin in own department                                       | Create a course                                           |
-| PATCH  | `/courses/:id`                                            | Super admin or department admin in own department                                       | Update a course                                           |
-| GET    | `/registrations`                                          | All roles; returns role-specific registrations                                          | List registrations                                        |
-| POST   | `/registrations`                                          | Student                                                                                 | Register for eligible courses                             |
-| GET    | `/results`                                                | All roles; returns role-specific results                                                | List results                                              |
-| PUT    | `/results/registration/:registrationId`                   | Lecturer assigned to the course                                                         | Save a result draft                                       |
-| POST   | `/results/:id/submit`                                     | Lecturer who manages the result                                                         | Submit a result for review                                |
-| POST   | `/results/:id/review`                                     | Department admin for the department or super admin                                      | Approve or return a submitted result                      |
-| GET    | `/activities`                                             | Super admin                                                                             | View activity records                                     |
+## Architecture
+
+The Express API is mounted at `/v1`. Routes apply authentication and authorization, handlers implement portal actions, and Mongoose models read and write MongoDB records.
+
+## Database
+
+MongoDB stores:
+
+- **Users** and their roles and academic affiliations.
+- **Faculties, departments, programs, and academic periods.**
+- **Courses**, linked to departments, programs, and lecturers.
+- **Registrations**, linking students, courses, and academic periods.
+- **Results**, linked to registrations and reviewed by authorized staff.
+- **Activity logs**, recording selected administrative actions.
+
+## Technology
+
+Node.js 20+, TypeScript, Express, MongoDB/Mongoose, Joi, and Winston.
+
+## Security
+
+- Session-based sign-in; sessions are stored in MongoDB.
+- Role checks for students, lecturers, department admins, and super admins.
+- Additional department and course-assignment checks on relevant actions.
+- Passwords are hashed; login attempts are rate-limited.
+- Helmet, CORS, request validation, and HTTP-only session cookies are configured.
+
+## Setup
+
+Requirements: Node.js 20+, npm, and MongoDB.
+
+1. Install packages:
+
+   ```sh
+   npm ci
+   ```
+
+2. Create `.env` in the project root. Add the required settings; keep real secrets and private URLs out of this README and source control:
+
+   ```dotenv
+   PORT=5000
+   MONGODB_URI=********
+   SESSION_SECRET=********
+   CLIENT_ORIGIN=********
+   NODE_ENV=development
+   ```
+
+3. Start MongoDB, then run:
+
+   ```sh
+   npm run dev
+   ```
+
+   The API runs at `http://localhost:5000/v1`.
+
+Build and run the compiled server:
+
+```sh
+npm run build
+npm start
+```
