@@ -16,58 +16,75 @@ import dotenv from "dotenv"
 
 dotenv.config();
 
+
 const app = express();
-const port = Number(process.env.PORT);
-const database_url = process.env.MONGODB_URI as string;
-const sessionSecret = process.env.SESSION_SECRET as string;
 
+const PORT = Number(process.env.PORT);
+const DATABASE_URL = process.env.MONGODB_URI as string;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
+if (!DATABASE_URL || !SESSION_SECRET) {
+  throw new Error('MONGODB_URI and SESSION_SECRET are required.');
+}
+
+app.set('trust proxy', IS_PRODUCTION ? 1 : false);
 
 app.use(helmet());
+
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   }),
 );
+
 app.use(express.json({ limit: '1mb' }));
+
 app.use(
   session({
     name: 'university.sid',
-    secret: sessionSecret,
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: database_url,
+      mongoUrl: DATABASE_URL,
       collectionName: 'sessions',
       ttl: 24 * 60 * 60,
     }),
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: IS_PRODUCTION,
+      sameSite: IS_PRODUCTION ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     },
   }),
 );
 
 app.use('/v1', apiRoutes);
+
 app.use((_req, _res, next) => {
   next(new HTTPException(HTTPStatus.NOT_FOUND, 'Route not found.'));
 });
 
 app.use(errorHandler);
 
-mongoose
-  .connect(database_url)
-  .then(() =>
-    app.listen(port, () => logger.info(`University portal API listening on port ${port}`)),
-  )
-  .catch((error: unknown) => {
+async function startServer() {
+  try {
+    await mongoose.connect(DATABASE_URL);
+
+    app.listen(PORT, () => {
+      logger.info(`University portal API listening on port ${PORT}`);
+    });
+  } catch (error: unknown) {
     logger.error('Could not connect to MongoDB.', {
       message: error instanceof Error ? error.message : 'Unknown connection error',
       stack: error instanceof Error ? error.stack : undefined,
     });
+
     process.exit(1);
-  });
+  }
+}
+
+startServer();
+
