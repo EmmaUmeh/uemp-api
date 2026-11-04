@@ -36,26 +36,34 @@ The API stores these records in MongoDB:
 
 ## API
 
-All routes start with `/v1`. Only login is public; the other routes require a signed-in user.
+All routes start with `/v1`. Send JSON payloads with `Content-Type: application/json`. Routes without a payload are marked `None`.
 
-| Method | Route | Access |
+| Method | Route | Payload |
 | --- | --- | --- |
-| `POST` | `/auth/login` | Public |
-| `GET` | `/auth/me` | Any signed-in user |
-| `POST` | `/auth/logout` | Any signed-in user |
-| `GET` | `/academics/:resource` | Any signed-in user; resource is `faculties`, `departments`, `programs`, or `periods` |
-| `POST`, `PATCH` | `/academics/:resource` and `/academics/:resource/:id` | Super admin or department admin |
-| `GET`, `POST`, `PATCH` | `/users`, `/users/:id` | Super admin or department admin |
-| `GET`, `POST`, `PATCH` | `/courses`, `/courses/:id` | All roles can list; admins can create or update |
-| `GET` | `/registrations` | Any signed-in role |
-| `POST` | `/registrations` | Student |
-| `GET` | `/results` | Any signed-in role |
-| `PUT` | `/results/registration/:registrationId` | Lecturer |
-| `POST` | `/results/:id/submit` | Lecturer |
-| `POST` | `/results/:id/review` | Department admin or super admin |
-| `GET` | `/activities` | Super admin |
+| `POST` | `/auth/login` | `{"emailAddress":"********","password":"********"}` |
+| `GET` | `/auth/me` | None |
+| `POST` | `/auth/logout` | None |
+| `GET` | `/academics/:resource` | None. Resource: `faculties`, `departments`, `programs`, or `periods`. |
+| `POST` | `/academics/faculties` | `{"name":"Science","code":"SCI"}` |
+| `POST` | `/academics/departments` | `{"name":"Computer Science","code":"CSC","faculty":"<facultyId>"}` |
+| `POST` | `/academics/programs` | `{"name":"Computer Science","code":"BSC-CS","department":"<departmentId>"}` |
+| `POST` | `/academics/periods` | `{"session":"2025/2026","semester":"first","registrationOpen":true,"isCurrent":true}` |
+| `PATCH` | `/academics/:resource/:id` | The fields to change for that resource, using the same fields as its `POST` payload. |
+| `GET` | `/users` | None |
+| `POST` | `/users` | `{"firstName":"Ada","lastName":"Example","emailAddress":"ada@example.com","password":"********","role":"student","department":"<departmentId>","program":"<programId>","level":100}` |
+| `PATCH` | `/users/:id` | Fields to change, for example `{"phone":"********","isActive":true}` |
+| `GET` | `/courses` | None |
+| `POST` | `/courses` | `{"code":"CSC101","title":"Introduction to Computing","units":3,"department":"<departmentId>","program":"<programId>","level":100,"semester":"first","lecturers":["<lecturerId>"]}` |
+| `PATCH` | `/courses/:id` | Fields to change, for example `{"title":"Updated title","lecturers":["<lecturerId>"]}` |
+| `GET` | `/registrations` | None |
+| `POST` | `/registrations` | `{"courseId":"<courseId>","academicPeriodId":"<academicPeriodId>"}` |
+| `GET` | `/results` | None |
+| `PUT` | `/results/registration/:registrationId` | `{"continuousAssessment":30,"examination":55}` |
+| `POST` | `/results/:id/submit` | None |
+| `POST` | `/results/:id/review` | `{"decision":"approved"}` or `{"decision":"returned","feedback":"Please check the score."}` |
+| `GET` | `/activities` | None |
 
-Login takes JSON with `emailAddress` and `password`. Use your own test account credentials; passwords do not belong in this README.
+Use your own account password in login and user-creation requests. Do not put real passwords in this README.
 
 ## Setup
 
