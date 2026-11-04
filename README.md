@@ -34,6 +34,29 @@ The API stores these records in MongoDB:
 - Department admins are limited to their department. Lecturers can work with courses assigned to them.
 - Login attempts are limited. Helmet, CORS rules, request checks, and HTTP-only session cookies are also used.
 
+## API
+
+All routes start with `/v1`. Only login is public; the other routes require a signed-in user.
+
+| Method | Route | Access |
+| --- | --- | --- |
+| `POST` | `/auth/login` | Public |
+| `GET` | `/auth/me` | Any signed-in user |
+| `POST` | `/auth/logout` | Any signed-in user |
+| `GET` | `/academics/:resource` | Any signed-in user; resource is `faculties`, `departments`, `programs`, or `periods` |
+| `POST`, `PATCH` | `/academics/:resource` and `/academics/:resource/:id` | Super admin or department admin |
+| `GET`, `POST`, `PATCH` | `/users`, `/users/:id` | Super admin or department admin |
+| `GET`, `POST`, `PATCH` | `/courses`, `/courses/:id` | All roles can list; admins can create or update |
+| `GET` | `/registrations` | Any signed-in role |
+| `POST` | `/registrations` | Student |
+| `GET` | `/results` | Any signed-in role |
+| `PUT` | `/results/registration/:registrationId` | Lecturer |
+| `POST` | `/results/:id/submit` | Lecturer |
+| `POST` | `/results/:id/review` | Department admin or super admin |
+| `GET` | `/activities` | Super admin |
+
+Login takes JSON with `emailAddress` and `password`. Use your own test account credentials; passwords do not belong in this README.
+
 ## Setup
 
 You need Node.js 20 or later, npm, and MongoDB.
