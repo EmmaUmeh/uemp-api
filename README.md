@@ -2,8 +2,6 @@
 
 ## API endpoints
 
-Base URL: `http://localhost:5000/v1`. Except for health and login, endpoints require the session cookie created by login. Send the cookie on subsequent requests; browser clients should use `credentials: "include"`. API errors are returned through the common error handler.
-
 | Method | Endpoint                                                  | Authentication / allowed roles                                                          | Purpose                                                   |
 | ------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | GET    | `/health`                                                 | Public                                                                                  | Health status; returns `503` when MongoDB is disconnected |
